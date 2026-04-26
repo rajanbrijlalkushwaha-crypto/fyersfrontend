@@ -693,12 +693,7 @@ export default function OptionChainTable() {
 
                 {/* Call Resistance */}
                 <td className={`data-col-cell slevel-cell ${isCallITM}`}>
-                  {(() => {
-                    const val = futuresMode ? futResistanceValue : resistanceValue;
-                    return val !== null && !isNaN(val)
-                      ? <span className="slevel-val">{formatReversal(val)}</span>
-                      : <span className="slevel-na">—</span>;
-                  })()}
+                  <span className="slevel-na">—</span>
                 </td>
 
                 {/* Call OI Chng */}
@@ -951,12 +946,7 @@ export default function OptionChainTable() {
 
                 {/* Put Support */}
                 <td className={`data-col-cell slevel-cell ${isPutITM}`}>
-                  {(() => {
-                    const val = futuresMode ? futSupportValue : supportValue;
-                    return val !== null && !isNaN(val)
-                      ? <span className="slevel-val">{formatReversal(val)}</span>
-                      : <span className="slevel-na">—</span>;
-                  })()}
+                  <span className="slevel-na">—</span>
                 </td>
 
                 {/* Put Greeks */}

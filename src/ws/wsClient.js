@@ -195,7 +195,8 @@ export function requestChart(chartType, symbol, expiry, date, timeoutMs = 8000) 
       clearTimeout(timer);
       pendingCharts.delete(id);
       // WS not ready — fall back to HTTP immediately
-      fetch(`/api/chart/${chartType}/${encodeURIComponent(symbol)}/${encodeURIComponent(expiry)}/${date}`, { credentials: 'include' })
+      const _apiBase = process.env.REACT_APP_API_URL || '';
+      fetch(`${_apiBase}/api/chart/${chartType}/${encodeURIComponent(symbol)}/${encodeURIComponent(expiry)}/${date}`, { credentials: 'include' })
         .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP error')))
         .then(resolve)
         .catch(reject);

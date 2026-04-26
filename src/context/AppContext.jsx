@@ -355,10 +355,10 @@ function appReducer(state, action) {
         greeksActive:       s.greeksActive       !== undefined ? s.greeksActive       : state.greeksActive,
         atmActive:          s.atmActive           !== undefined ? s.atmActive           : state.atmActive,
         indicatorsActive:   false, // always off on load regardless of saved preference
+        mmiDisplayActive:   false, // always off on load regardless of saved preference
         ltpDisplayActive:   s.ltpDisplayActive    !== undefined ? s.ltpDisplayActive    : state.ltpDisplayActive,
         volumeDisplayActive:s.volumeDisplayActive !== undefined ? s.volumeDisplayActive : state.volumeDisplayActive,
         oiDisplayActive:    s.oiDisplayActive     !== undefined ? s.oiDisplayActive     : state.oiDisplayActive,
-        mmiDisplayActive:   s.mmiDisplayActive    !== undefined ? s.mmiDisplayActive    : state.mmiDisplayActive,
         tableReversed:      s.tableReversed       !== undefined ? s.tableReversed       : state.tableReversed,
         ltpCalcActive:      s.ltpCalcActive       !== undefined ? s.ltpCalcActive       : state.ltpCalcActive,
         showInLakh:         s.showInLakh          !== undefined ? s.showInLakh          : state.showInLakh,
