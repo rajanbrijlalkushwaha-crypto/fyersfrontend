@@ -215,48 +215,8 @@ export default function OptionChainTable() {
 
   // Post-9:09 AM: check spot vs yesterday's Bromos levels.
   // If spot between S and R reversal → no change.
-  // If spot breaks out → scan every strike, find which reversal crosses spot → new level.
-  const adjustedBromos = useMemo(() => {
-    // Gap correction is handled server-side at 9:09 AM — no frontend override needed
-    return null;
-    if (!currentSpot || !strategy40SupportReversal || !strategy40ResistanceReversal || !chainData?.length) return null;
-    const now = new Date();
-    const ist = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + 5.5 * 3600000);
-    if (ist.getUTCHours() < 9 || (ist.getUTCHours() === 9 && ist.getUTCMinutes() < 9)) return null;
-
-    // Spot between yesterday's S and R reversal — no adjustment needed
-    if (currentSpot > strategy40SupportReversal && currentSpot < strategy40ResistanceReversal) return null;
-
-    const sorted = [...chainData].sort((a, b) => a.strike - b.strike);
-
-    if (currentSpot >= strategy40ResistanceReversal) {
-      // Gap-up: find lowest R reversal that is >= spot (not below gap open price)
-      let newR = null, bestRev = Infinity;
-      for (let i = 0; i < sorted.length - 1; i++) {
-        const rev = calculateResistance(currentSpot, sorted[i].put, sorted[i + 1].call);
-        if (rev != null && rev >= currentSpot && rev < bestRev) {
-          bestRev = rev;
-          newR = { side: 'R', strike: sorted[i].strike, reversal: Math.round(rev) };
-        }
-      }
-      return newR;
-    }
-
-    if (currentSpot <= strategy40SupportReversal) {
-      // Gap-down: find highest S reversal that is <= spot (not above gap down price)
-      let newS = null, bestRev = -Infinity;
-      for (let i = 1; i < sorted.length; i++) {
-        const rev = calculateSupport(currentSpot, sorted[i].call, sorted[i - 1].put);
-        if (rev != null && rev <= currentSpot && rev > bestRev) {
-          bestRev = rev;
-          newS = { side: 'S', strike: sorted[i].strike, reversal: Math.round(rev) };
-        }
-      }
-      return newS;
-    }
-
-    return null;
-  }, [chainData, currentSpot, strategy40SupportReversal, strategy40ResistanceReversal]);
+  // Gap correction is handled server-side at 9:09 AM — no frontend override needed
+  const adjustedBromos = useMemo(() => null, []);
 
   // Footer totals — always matches the currently displayed strikes
   const ftotals = useMemo(() => {
