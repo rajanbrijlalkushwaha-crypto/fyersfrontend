@@ -1,8 +1,25 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../../context/AppContext';
 
-function getFavKey(user) {
-  return `sym_favs_${user?.id || user?.email || 'guest'}`;
+const API_BASE = process.env.REACT_APP_API_URL || '';
+
+const INDICES_ORDER = ['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY', 'SENSEX', 'BANKEX'];
+
+function indexRank(sym) {
+  const i = INDICES_ORDER.indexOf(sym);
+  return i === -1 ? 999 : i;
+}
+
+function sortSymbols(symbols, favs) {
+  return [...symbols].sort((a, b) => {
+    const af = favs.includes(a), bf = favs.includes(b);
+    if (af && !bf) return -1;
+    if (!af && bf) return 1;
+    // Within same fav group: indices first, then alphabetical
+    const ai = indexRank(a), bi = indexRank(b);
+    if (ai !== bi) return ai - bi;
+    return a.localeCompare(b);
+  });
 }
 
 export default function SymbolSelect() {
@@ -10,19 +27,45 @@ export default function SymbolSelect() {
   const [open, setOpen]     = useState(false);
   const [favs, setFavs]     = useState([]);
   const ref                 = useRef();
+  const saveTimer           = useRef(null);
 
-  // Load favorites from localStorage when user is known
+  // Load favourites from backend; fallback to localStorage
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(getFavKey(state.user)) || '[]');
-      setFavs(Array.isArray(saved) ? saved : []);
-    } catch (_) { setFavs([]); }
+    if (!state.user) return;
+    fetch(`${API_BASE}/api/auth/favourites`, { credentials: 'include' })
+      .then(r => r.json())
+      .then(d => {
+        if (Array.isArray(d.favourites)) {
+          setFavs(d.favourites);
+          try { localStorage.setItem(`sym_favs_${state.user.id}`, JSON.stringify(d.favourites)); } catch (_) {}
+        }
+      })
+      .catch(() => {
+        // Backend unavailable — use localStorage cache
+        try {
+          const saved = JSON.parse(localStorage.getItem(`sym_favs_${state.user.id}`) || '[]');
+          setFavs(Array.isArray(saved) ? saved : []);
+        } catch (_) { setFavs([]); }
+      });
   }, [state.user]);
 
-  // Save favorites to localStorage
+  // Debounced save to backend
+  const persistFavs = useCallback((next) => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      fetch(`${API_BASE}/api/auth/favourites`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ favourites: next }),
+      }).catch(() => {});
+    }, 500);
+  }, []);
+
   const saveFavs = (next) => {
     setFavs(next);
-    try { localStorage.setItem(getFavKey(state.user), JSON.stringify(next)); } catch (_) {}
+    try { localStorage.setItem(`sym_favs_${state.user?.id}`, JSON.stringify(next)); } catch (_) {}
+    persistFavs(next);
   };
 
   const toggleFav = (e, sym) => {
@@ -42,13 +85,7 @@ export default function SymbolSelect() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Sort: favorites first, then alphabetical
-  const sorted = [...state.symbols].sort((a, b) => {
-    const af = favs.includes(a), bf = favs.includes(b);
-    if (af && !bf) return -1;
-    if (!af && bf) return 1;
-    return a.localeCompare(b);
-  });
+  const sorted = sortSymbols(state.symbols, favs);
 
   return (
     <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
@@ -79,6 +116,7 @@ export default function SymbolSelect() {
           {sorted.map(sym => {
             const isFav = favs.includes(sym);
             const isActive = sym === state.currentSymbol;
+            const isIndex = indexRank(sym) < 999;
             return (
               <div
                 key={sym}
@@ -106,6 +144,7 @@ export default function SymbolSelect() {
                   {isFav ? '♥' : '♡'}
                 </button>
                 <span style={{ flex: 1 }}>{sym.replace(/_/g, ' ')}</span>
+                {isIndex && !isFav && <span style={{ fontSize: '9px', color: '#1976d2', fontWeight: 700, background: '#e3f2fd', borderRadius: 3, padding: '1px 4px' }}>IDX</span>}
                 {isFav && <span style={{ fontSize: '10px', color: '#e53935', fontWeight: 700 }}>★</span>}
               </div>
             );

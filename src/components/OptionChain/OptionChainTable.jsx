@@ -265,7 +265,7 @@ export default function OptionChainTable() {
 
   // Colspan calculations
   const callCols = useMemo(() => {
-    let cols = 3; // OI Chng + S Level + LTP Level
+    let cols = 4; // Resistance + OI Chng + S Level + LTP Level
     if (oiDisplayActive) cols++;
     if (volumeDisplayActive) cols++;
     if (ltpDisplayActive) cols++;
@@ -275,7 +275,7 @@ export default function OptionChainTable() {
   }, [oiDisplayActive, volumeDisplayActive, ltpDisplayActive, volOiCngActive, greeksActive]);
 
   const putCols = useMemo(() => {
-    let cols = 3; // S Level + LTP Level + OI Chng
+    let cols = 4; // S Level + LTP Level + OI Chng + Support
     if (oiDisplayActive) cols++;
     if (volumeDisplayActive) cols++;
     if (ltpDisplayActive) cols++;
@@ -485,6 +485,7 @@ export default function OptionChainTable() {
             <th className="call-sub greek-col">Delta</th>
             <th className="call-sub greek-col">IV</th>
           </>}
+          <th className="call-sub data-col-cell">Resistance</th>
           <th className="call-sub data-col-cell">OI Chng</th>
           {oiDisplayActive && <th className="call-sub data-col-cell oi-col">OI</th>}
           {volumeDisplayActive && <th className="call-sub data-col-cell vol-col">Vol</th>}
@@ -531,6 +532,7 @@ export default function OptionChainTable() {
           {volumeDisplayActive && <th className="put-sub data-col-cell vol-col">Vol</th>}
           {oiDisplayActive && <th className="put-sub data-col-cell oi-col">OI</th>}
           <th className="put-sub data-col-cell">OI Chng</th>
+          <th className="put-sub data-col-cell">Support</th>
           {greeksActive && <>
             <th className="put-sub greek-col">IV</th>
             <th className="put-sub greek-col">Delta</th>
@@ -688,6 +690,16 @@ export default function OptionChainTable() {
                   <td className={`greek-col ${isCallITM}`}>{r.call?.delta || '-'}</td>
                   <td className={`greek-col ${isCallITM}`}>{r.call?.iv || '-'}</td>
                 </>}
+
+                {/* Call Resistance */}
+                <td className={`data-col-cell slevel-cell ${isCallITM}`}>
+                  {(() => {
+                    const val = futuresMode ? futResistanceValue : resistanceValue;
+                    return val !== null && !isNaN(val)
+                      ? <span className="slevel-val">{formatReversal(val)}</span>
+                      : <span className="slevel-na">—</span>;
+                  })()}
+                </td>
 
                 {/* Call OI Chng */}
                 <td
@@ -935,6 +947,16 @@ export default function OptionChainTable() {
                   <span className="perc-val">
                     {stats.putCH.max > 0 ? ((Math.max(0, putOIChg) / stats.putCH.max) * 100).toFixed(0) : 0}%
                   </span>
+                </td>
+
+                {/* Put Support */}
+                <td className={`data-col-cell slevel-cell ${isPutITM}`}>
+                  {(() => {
+                    const val = futuresMode ? futSupportValue : supportValue;
+                    return val !== null && !isNaN(val)
+                      ? <span className="slevel-val">{formatReversal(val)}</span>
+                      : <span className="slevel-na">—</span>;
+                  })()}
                 </td>
 
                 {/* Put Greeks */}

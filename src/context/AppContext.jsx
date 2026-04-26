@@ -27,7 +27,7 @@ const initialState = {
   ltpDisplayActive: true,
   volumeDisplayActive: true,
   oiDisplayActive: true,
-  mmiDisplayActive: true,
+  mmiDisplayActive: false,
   tableReversed: false,
   ltpCalcActive: false,
   volOiCngActive: false,
