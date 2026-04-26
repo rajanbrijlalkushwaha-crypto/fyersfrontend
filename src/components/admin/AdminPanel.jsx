@@ -406,7 +406,7 @@ function SystemTab({ adminToken }) {
 
 // ── Fyers Apps Panel ─────────────────────────────────────────────────────────
 function FyersAppsPanel({ adminToken }) {
-  const BLANK = { name: '', app_id: '', secret_key: '', redirect_uri: 'http://localhost:5000/api/admin/fyers-auth/callback' };
+  const BLANK = { name: '', app_id: '', secret_key: '', redirect_uri: 'https://dev.soc.ai.in/api/admin/fyers-auth/callback' };
   const [apps,         setApps]        = useState([]);
   const [newRow,       setNewRow]      = useState({ ...BLANK });
   const [editSecrets,  setEditSecrets] = useState({});
