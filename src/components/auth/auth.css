@@ -644,7 +644,9 @@ body {
    ROOT WRAPPER
 ══════════════════════════════════════ */
 .auth-root {
-    min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     background:
@@ -913,6 +915,27 @@ body {
 }
 .sub-policy-links a { color: var(--orange); text-decoration: none; font-weight: 600; }
 .sub-policy-links a:hover { text-decoration: underline; }
+
+.sub-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1240;
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+    z-index: 9999;
+    white-space: nowrap;
+    animation: toastIn 0.25s ease;
+}
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
 
 /* ══════════════════════════════════════
    CONTACT PAGE

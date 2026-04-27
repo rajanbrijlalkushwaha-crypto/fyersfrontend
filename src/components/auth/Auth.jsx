@@ -38,6 +38,12 @@ function NavBar({ activePage, setPage }) {
 // ── Subscription Page ─────────────────────────────────────────────────────────
 function SubscriptionPage() {
   const [tab, setTab] = useState('regular');
+  const [showToast, setShowToast] = useState(false);
+
+  const handleSelectPlan = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3500);
+  };
 
   const regularPlans = [
     {
@@ -93,13 +99,18 @@ function SubscriptionPage() {
 
   return (
     <div className="auth-page-wrap">
+      {showToast && (
+        <div className="sub-toast">
+          🔧 Payment gateway integration is currently under process. Please check back soon!
+        </div>
+      )}
       {/* Community Membership Banner */}
       <div className="sub-community-banner">
         <div className="sub-comm-left">
           <div className="sub-comm-title">Community Membership</div>
           <div className="sub-comm-price">₹9,999</div>
           <div className="sub-comm-sub">One-time payment · Lifetime Access</div>
-          <button className="sub-comm-btn">Join Community</button>
+          <button className="sub-comm-btn" onClick={handleSelectPlan}>Join Community</button>
         </div>
         <div className="sub-comm-right">
           <div className="sub-comm-perks-title">Community Benefits</div>
@@ -148,7 +159,7 @@ function SubscriptionPage() {
                   <span>₹{p.save.total.toLocaleString('en-IN')}</span>
                 </div>
               </div>
-              <button className="sub-select-btn">Select Plan</button>
+              <button className="sub-select-btn" onClick={handleSelectPlan}>Select Plan</button>
               <div className="sub-features">
                 {features.map((f, i) => <div key={i} className="sub-feat">✓ {f}</div>)}
               </div>
@@ -183,7 +194,7 @@ function SubscriptionPage() {
                   <span>₹{p.price.toLocaleString('en-IN')}</span>
                 </div>
               </div>
-              <button className="sub-select-btn">Select Plan</button>
+              <button className="sub-select-btn" onClick={handleSelectPlan}>Select Plan</button>
               <div className="sub-features">
                 {advFeatures.map((f, i) => <div key={i} className="sub-feat">✓ {f}</div>)}
               </div>
