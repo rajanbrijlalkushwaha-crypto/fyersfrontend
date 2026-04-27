@@ -2,9 +2,343 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './auth.css';
 
+// ── Top Navigation Bar ────────────────────────────────────────────────────────
+function NavBar({ activePage, setPage }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const links = [
+    { id: 'home',         label: 'Home' },
+    { id: 'subscription', label: 'Subscription' },
+    { id: 'contact',      label: 'Contact' },
+    { id: 'refund',       label: 'Refund Policy' },
+    { id: 'shipping',     label: 'Shipping' },
+  ];
+  return (
+    <nav className="auth-navbar">
+      <div className="auth-navbar-inner">
+        <div className="auth-navbar-brand" onClick={() => setPage('home')}>
+          soc<span>.ai.in</span>
+        </div>
+        <div className={`auth-navbar-links${menuOpen ? ' open' : ''}`}>
+          {links.map(l => (
+            <button
+              key={l.id}
+              className={`auth-nav-link${activePage === l.id ? ' active' : ''}`}
+              onClick={() => { setPage(l.id); setMenuOpen(false); }}
+            >{l.label}</button>
+          ))}
+        </div>
+        <button className="auth-nav-hamburger" onClick={() => setMenuOpen(p => !p)}>
+          <span /><span /><span />
+        </button>
+      </div>
+    </nav>
+  );
+}
+
+// ── Subscription Page ─────────────────────────────────────────────────────────
+function SubscriptionPage() {
+  const [tab, setTab] = useState('regular');
+
+  const regularPlans = [
+    {
+      name: 'Weekly',
+      days: 7,
+      price: 111,
+      communityPrice: 66.6,
+      perDayCom: 9.51,
+      perDayNon: 15.86,
+      save: { perDay: 6.34, total: 44.4 },
+      popular: false,
+    },
+    {
+      name: 'Monthly',
+      days: 30,
+      price: 249,
+      communityPrice: 149,
+      perDayCom: 4.97,
+      perDayNon: 8.3,
+      save: { perDay: 3.33, total: 100 },
+      popular: false,
+    },
+    {
+      name: 'Half Yearly',
+      days: 180,
+      price: 1434,
+      communityPrice: 860,
+      perDayCom: 4.78,
+      perDayNon: 7.97,
+      save: { perDay: 3.19, total: 574 },
+      popular: true,
+    },
+    {
+      name: 'Yearly',
+      days: 365,
+      price: 2749,
+      communityPrice: 1649,
+      perDayCom: 4.52,
+      perDayNon: 7.53,
+      save: { perDay: 3.01, total: 1100 },
+      popular: false,
+    },
+  ];
+
+  const advancePlans = [
+    { name: 'Monthly', days: 30, price: 499, communityPrice: 299, popular: false },
+    { name: 'Half Yearly', days: 180, price: 2499, communityPrice: 1499, popular: true },
+    { name: 'Yearly', days: 365, price: 4499, communityPrice: 2699, popular: false },
+  ];
+
+  const features = ['All free plan benefits', 'Live Option Chain', 'Scalp Signals', 'Positional Signals', 'S/R Levels'];
+  const advFeatures = ['All Regular Plan benefits', 'AI Auto Analysis', 'Bromos Trade Signals', 'MCTR Trade Signals', 'AI Power Stock', 'Priority Support'];
+
+  return (
+    <div className="auth-page-wrap">
+      {/* Community Membership Banner */}
+      <div className="sub-community-banner">
+        <div className="sub-comm-left">
+          <div className="sub-comm-title">Community Membership</div>
+          <div className="sub-comm-price">₹9,999</div>
+          <div className="sub-comm-sub">One-time payment · Lifetime Access</div>
+          <button className="sub-comm-btn">Join Community</button>
+        </div>
+        <div className="sub-comm-right">
+          <div className="sub-comm-perks-title">Community Benefits</div>
+          {['40% Discount on All Plans', 'Post-Market Analysis Sessions', 'Community Support Group', 'Weekly Learning Classes', 'Exclusive Q&amp;A on Weekends', 'Lifetime Updates &amp; Research'].map((b, i) => (
+            <div key={i} className="sub-comm-perk">✓ {b}</div>
+          ))}
+        </div>
+      </div>
+
+      {/* Plan Tabs */}
+      <div className="sub-tab-row">
+        <button className={`sub-tab-btn${tab === 'regular' ? ' active' : ''}`} onClick={() => setTab('regular')}>Regular Plans</button>
+        <button className={`sub-tab-btn${tab === 'advance' ? ' active' : ''}`} onClick={() => setTab('advance')}>Advance Plans</button>
+      </div>
+
+      {/* Regular Plans */}
+      {tab === 'regular' && (
+        <div className="sub-plans-grid">
+          {regularPlans.map(p => (
+            <div key={p.name} className={`sub-plan-card${p.popular ? ' popular' : ''}`}>
+              {p.popular && <div className="sub-popular-badge">★ Popular</div>}
+              <div className="sub-plan-name">{p.name}</div>
+              <div className="sub-plan-price-box">
+                <div className="sub-plan-label">Starting from</div>
+                <div className="sub-plan-price">₹{p.price.toLocaleString('en-IN')}</div>
+                <div className="sub-plan-duration">for {p.days} days</div>
+                <div className="sub-plan-tag">Non-Community</div>
+              </div>
+              <div className="sub-price-table">
+                <div className="sub-pt-head">
+                  <span>Plan Type</span><span>Per Day</span><span>Total Price</span>
+                </div>
+                <div className="sub-pt-row community-row">
+                  <span>Community</span>
+                  <span>₹{p.perDayCom}</span>
+                  <span>₹{p.communityPrice.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="sub-pt-row">
+                  <span>★ Non-Community</span>
+                  <span>₹{p.perDayNon}</span>
+                  <span>₹{p.price.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="sub-pt-save">
+                  <span>You Save</span>
+                  <span>₹{p.save.perDay}</span>
+                  <span>₹{p.save.total.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+              <button className="sub-select-btn">Select Plan</button>
+              <div className="sub-features">
+                {features.map((f, i) => <div key={i} className="sub-feat">✓ {f}</div>)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Advance Plans */}
+      {tab === 'advance' && (
+        <div className="sub-plans-grid sub-plans-grid-3">
+          {advancePlans.map(p => (
+            <div key={p.name} className={`sub-plan-card${p.popular ? ' popular' : ''}`}>
+              {p.popular && <div className="sub-popular-badge">★ Popular</div>}
+              <div className="sub-plan-name">{p.name}</div>
+              <div className="sub-plan-price-box">
+                <div className="sub-plan-label">Starting from</div>
+                <div className="sub-plan-price">₹{p.price.toLocaleString('en-IN')}</div>
+                <div className="sub-plan-duration">for {p.days} days</div>
+                <div className="sub-plan-tag">Non-Community</div>
+              </div>
+              <div className="sub-price-table">
+                <div className="sub-pt-head">
+                  <span>Plan Type</span><span>Total Price</span>
+                </div>
+                <div className="sub-pt-row community-row">
+                  <span>Community</span>
+                  <span>₹{p.communityPrice.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="sub-pt-row">
+                  <span>Non-Community</span>
+                  <span>₹{p.price.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+              <button className="sub-select-btn">Select Plan</button>
+              <div className="sub-features">
+                {advFeatures.map((f, i) => <div key={i} className="sub-feat">✓ {f}</div>)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Footer links */}
+      <div className="sub-policy-links">
+        Shipping &amp; Delivery: <a href="https://logictrader.in/shipping-and-delivery" target="_blank" rel="noreferrer">View Details</a>
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        Cancellation &amp; Refund: <a href="https://logictrader.in/cancellation-and-refund" target="_blank" rel="noreferrer">View Details</a>
+      </div>
+    </div>
+  );
+}
+
+// ── Contact Page ──────────────────────────────────────────────────────────────
+function ContactPage() {
+  return (
+    <div className="auth-page-wrap">
+      <div className="contact-card">
+        <div className="contact-title">Get in Touch</div>
+        <div className="contact-sub">We're here to help. Reach out any time.</div>
+        <div className="contact-grid">
+          <div className="contact-item">
+            <div className="contact-icon">👤</div>
+            <div className="contact-label">Registered Name</div>
+            <div className="contact-value">Rajan Kushwaha</div>
+          </div>
+          <div className="contact-item">
+            <div className="contact-icon">📍</div>
+            <div className="contact-label">Address</div>
+            <div className="contact-value">Rampur Khurd, Po Dhebwa, PS Gopalpur<br />Dist. Gopalganj, Bihar – 841503</div>
+          </div>
+          <div className="contact-item">
+            <div className="contact-icon">📞</div>
+            <div className="contact-label">Mobile</div>
+            <div className="contact-value"><a href="tel:8401520208">+91 84015 20208</a></div>
+          </div>
+          <div className="contact-item">
+            <div className="contact-icon">✉️</div>
+            <div className="contact-label">Email</div>
+            <div className="contact-value"><a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a></div>
+          </div>
+        </div>
+        <div className="contact-note">
+          Support hours: Monday – Saturday, 9:00 AM – 6:00 PM IST.<br />
+          We typically respond within 24 hours.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Refund Policy Page ────────────────────────────────────────────────────────
+function RefundPage() {
+  return (
+    <div className="auth-page-wrap">
+      <div className="policy-card">
+        <div className="policy-title">Cancellation &amp; Refund Policy</div>
+        <div className="policy-updated">Last updated: April 2026</div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Overview</div>
+          <p>At SOC.ai.in (operated by Rajan Kushwaha), we are committed to delivering high-quality trading analysis tools. Please read our refund policy carefully before making a purchase.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Subscription Plans</div>
+          <p>All subscription plans (Weekly, Monthly, Half Yearly, and Yearly) are prepaid digital services. Once a subscription is activated and access to the platform has been granted, the plan is considered consumed and is <strong>non-refundable</strong>.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Cancellation</div>
+          <p>You may cancel your subscription at any time from your profile page. Cancellation stops future renewals but does not entitle you to a refund for the current active period. Your access will continue until the end of the paid period.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Exceptions</div>
+          <p>Refunds may be considered only in the following situations:</p>
+          <ul>
+            <li>Duplicate payment made for the same plan within 24 hours</li>
+            <li>Technical failure on our end preventing access for more than 48 continuous hours</li>
+            <li>Accidental purchase of a wrong plan contacted within 2 hours of payment</li>
+          </ul>
+          <p>To request a refund under any of the above, email us at <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> within 48 hours of the transaction with your payment reference number.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Community Membership</div>
+          <p>The one-time Community Membership fee of ₹9,999 is non-refundable once the membership is activated and community access has been granted.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Processing Time</div>
+          <p>Approved refunds will be credited to the original payment method within <strong>7–10 business days</strong>, subject to your bank's processing time.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Contact Us</div>
+          <p>For any refund-related queries: <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> | +91 84015 20208</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Shipping Page ─────────────────────────────────────────────────────────────
+function ShippingPage() {
+  return (
+    <div className="auth-page-wrap">
+      <div className="policy-card">
+        <div className="policy-title">Shipping &amp; Delivery Policy</div>
+        <div className="policy-updated">Last updated: April 2026</div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Digital Services Only</div>
+          <p>SOC.ai.in is a fully digital platform. All products and services offered — including subscription plans and community membership — are delivered electronically. <strong>No physical goods are shipped.</strong></p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Instant Access</div>
+          <p>Upon successful payment verification, your account is activated immediately. You will receive a confirmation email with your login credentials and plan details within a few minutes of purchase.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Delivery Method</div>
+          <ul>
+            <li><strong>Subscription Plans:</strong> Access granted instantly via your registered email and login credentials</li>
+            <li><strong>Community Membership:</strong> Invitation link sent to your registered email within 1 hour of payment confirmation</li>
+            <li><strong>OTP &amp; Verification Emails:</strong> Delivered within 2–5 minutes (check spam folder if not received)</li>
+          </ul>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Delays</div>
+          <p>In rare cases, payment gateway delays may affect activation. If your account is not activated within 2 hours of a confirmed payment, please contact us immediately at <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> with your payment receipt.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Contact</div>
+          <p>For delivery-related issues: <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> | +91 84015 20208</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
 const AuthPage = () => {
+  const [navPage, setNavPage] = useState('home');
+
   // State management
   const [activeTab, setActiveTab] = useState('signin');
   const [activePanel, setActivePanel] = useState('signin');
@@ -329,6 +663,15 @@ const AuthPage = () => {
   const hideTabs = ['otp', 'link-sent', 'forgot', 'reset'].includes(activePanel);
 
   return (
+    <div className="auth-root">
+      <NavBar activePage={navPage} setPage={setNavPage} />
+
+      {navPage === 'subscription' && <SubscriptionPage />}
+      {navPage === 'contact'      && <ContactPage />}
+      {navPage === 'refund'       && <RefundPage />}
+      {navPage === 'shipping'     && <ShippingPage />}
+
+      {navPage === 'home' && (
     <div className="auth-container">
       {/* Background orbs */}
       <div className="orb orb-1" />
@@ -663,6 +1006,8 @@ const AuthPage = () => {
         </div>{/* end right-panel */}
         </div>{/* end auth-panels */}
       </div>{/* end auth-box */}
+    </div>
+      )}{/* end navPage === home */}
     </div>
   );
 };
