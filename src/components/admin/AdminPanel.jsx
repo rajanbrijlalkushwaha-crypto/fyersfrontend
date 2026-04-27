@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import './AdminPanel.css';
 
@@ -239,13 +239,29 @@ function SystemTab({ adminToken }) {
     setInstrLoading(false);
   };
 
-  // Only show instruments that support option chain (others can't be fetched)
-  const filtered = masterList
-    .filter(i => i.hasOptionChain !== false)
-    .filter(i =>
-      !search || i.symbol?.toLowerCase().includes(search.toLowerCase()) ||
-      i.name?.toLowerCase().includes(search.toLowerCase())
-    );
+  // Instruments list: active first, then Index → Futures → Stock A-Z, live search
+  const filtered = useMemo(() => {
+    const CATEGORY_ORDER = { Index: 0, Futures: 1, Stock: 2, Commodity: 3 };
+    const q = search.toLowerCase();
+    return masterList
+      .filter(i => i.hasOptionChain !== false)
+      .filter(i => !q ||
+        i.symbol?.toLowerCase().includes(q) ||
+        i.name?.toLowerCase().includes(q)
+      )
+      .sort((a, b) => {
+        // Active instruments first
+        const aActive = activeKeys.has(a.key) ? 0 : 1;
+        const bActive = activeKeys.has(b.key) ? 0 : 1;
+        if (aActive !== bActive) return aActive - bActive;
+        // Category order: Index → Futures → Stock
+        const ac = CATEGORY_ORDER[a.category] ?? 99;
+        const bc = CATEGORY_ORDER[b.category] ?? 99;
+        if (ac !== bc) return ac - bc;
+        // A-Z within category
+        return (a.symbol || '').localeCompare(b.symbol || '');
+      });
+  }, [masterList, activeKeys, search]);
 
   const startFetching = async (intervalSeconds = fetchInterval) => {
     setActionLoading(true);
