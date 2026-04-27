@@ -978,6 +978,9 @@ export default function OptionChainTable() {
             <td key={`fg${i}`} className="footer-data-cell call-footer greek-col" />
           ))}
 
+          {/* Resistance col — empty in footer */}
+          <td className="footer-data-cell call-footer" />
+
           <td className={`footer-data-cell call-footer ${ftotals.tcCH > 0 ? 'positive' : ftotals.tcCH < 0 ? 'negative' : ''}`}>
             {ftotals.tcCH >= 0 ? '+' : ''}{fmtLots(ftotals.tcCH)}
           </td>
@@ -1008,6 +1011,9 @@ export default function OptionChainTable() {
           <td className={`footer-data-cell put-footer ${ftotals.tpCH > 0 ? 'positive' : ftotals.tpCH < 0 ? 'negative' : ''}`}>
             {ftotals.tpCH >= 0 ? '+' : ''}{fmtLots(ftotals.tpCH)}
           </td>
+
+          {/* Support col — empty in footer */}
+          <td className="footer-data-cell put-footer" />
 
           {greeksActive && Array.from({ length: 6 }, (_, i) => (
             <td key={`fpg${i}`} className="footer-data-cell put-footer greek-col" />
