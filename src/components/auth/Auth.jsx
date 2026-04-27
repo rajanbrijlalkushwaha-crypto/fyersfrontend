@@ -2,36 +2,120 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './auth.css';
 
+const POLICY_IDS = ['terms','privacy','refund','cancellation','shipping'];
+const POLICY_LABELS = {
+  terms: 'Terms & Conditions', privacy: 'Privacy Policy',
+  refund: 'Refund Policy', cancellation: 'Cancellation Policy', shipping: 'Shipping Policy',
+};
+
 // ── Top Navigation Bar ────────────────────────────────────────────────────────
 function NavBar({ activePage, setPage }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const links = [
+  const [policyOpen, setPolicyOpen] = useState(false);
+
+  const mainLinks = [
     { id: 'home',         label: 'Home' },
+    { id: 'about',        label: 'About Us' },
     { id: 'subscription', label: 'Subscription' },
     { id: 'contact',      label: 'Contact' },
-    { id: 'refund',       label: 'Refund Policy' },
-    { id: 'shipping',     label: 'Shipping' },
   ];
+
+  const nav = (id) => { setPage(id); setMenuOpen(false); setPolicyOpen(false); };
+  const isPolicyActive = POLICY_IDS.includes(activePage);
+
   return (
     <nav className="auth-navbar">
       <div className="auth-navbar-inner">
-        <div className="auth-navbar-brand" onClick={() => setPage('home')}>
+        <div className="auth-navbar-brand" onClick={() => nav('home')}>
           soc<span>.ai.in</span>
         </div>
+
         <div className={`auth-navbar-links${menuOpen ? ' open' : ''}`}>
-          {links.map(l => (
-            <button
-              key={l.id}
+          {mainLinks.map(l => (
+            <button key={l.id}
               className={`auth-nav-link${activePage === l.id ? ' active' : ''}`}
-              onClick={() => { setPage(l.id); setMenuOpen(false); }}
+              onClick={() => nav(l.id)}
             >{l.label}</button>
           ))}
+
+          {/* Policies dropdown */}
+          <div className="auth-nav-dropdown">
+            <button
+              className={`auth-nav-link auth-nav-dropdown-btn${isPolicyActive ? ' active' : ''}`}
+              onClick={() => setPolicyOpen(p => !p)}
+            >Policies ▾</button>
+            {policyOpen && (
+              <div className="auth-nav-dropdown-menu">
+                {POLICY_IDS.map(id => (
+                  <button key={id}
+                    className={`auth-nav-dropdown-item${activePage === id ? ' active' : ''}`}
+                    onClick={() => nav(id)}
+                  >{POLICY_LABELS[id]}</button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+
         <button className="auth-nav-hamburger" onClick={() => setMenuOpen(p => !p)}>
           <span /><span /><span />
         </button>
       </div>
     </nav>
+  );
+}
+
+// ── About Us Page ─────────────────────────────────────────────────────────────
+function AboutPage() {
+  return (
+    <div className="auth-page-wrap">
+      <div className="policy-card">
+        <div className="policy-title">About Us</div>
+        <div className="policy-updated">soc.ai.in — AI-Powered Option Chain &amp; Trading Analytics Platform</div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Who We Are</div>
+          <p>This website is operated by <strong>Rajan Kushwaha</strong>, trading under the name <strong>soc.ai.in</strong>. We are an independent fintech platform based in Gopalganj, Bihar, India, dedicated to empowering retail traders with professional-grade market analysis tools.</p>
+          <p>SOC stands for <strong>Simplify Option Chain</strong> — our core mission is to make complex options data accessible, actionable, and understandable for every trader, from beginners to seasoned professionals.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">What We Offer</div>
+          <p>soc.ai.in provides a suite of AI-enhanced tools designed for Indian equity and derivatives traders:</p>
+          <ul>
+            <li><strong>Live Option Chain:</strong> Real-time OI, Volume, LTP, and Greeks — all in one view via WebSocket</li>
+            <li><strong>AI Auto Analysis:</strong> Automated market analysis updated every minute during trading hours</li>
+            <li><strong>Bromos &amp; MCTR Trade Signals:</strong> OI-based Support &amp; Resistance strategy signals</li>
+            <li><strong>Scalp &amp; Positional Setups:</strong> Intraday and multi-day trade setups powered by proprietary models</li>
+            <li><strong>AI Power Stock:</strong> AI-driven stock strength analysis and ranking</li>
+            <li><strong>Journal Book:</strong> Track and review your trades with P&amp;L analytics</li>
+            <li><strong>Historical Data:</strong> Access past option chain snapshots for backtesting and review</li>
+            <li><strong>Community Membership:</strong> Lifetime access to exclusive learning sessions, post-market analysis, and research</li>
+          </ul>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Our Mission</div>
+          <p>We believe every trader deserves the same quality of data and analysis that institutional participants have. Our goal is to bridge that gap — delivering real-time, AI-powered insights through a clean, fast, and reliable platform that works on any device.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Important Disclaimer</div>
+          <p>All content, signals, and analysis on soc.ai.in are <strong>for educational and informational purposes only</strong>. Nothing on this platform constitutes financial advice or a recommendation to buy or sell any security. Trading involves substantial risk of loss. Users are solely responsible for their trading decisions.</p>
+        </div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">Registered Details</div>
+          <ul>
+            <li><strong>Legal Name:</strong> Rajan Kushwaha</li>
+            <li><strong>Trade Name:</strong> soc.ai.in / Simplify Option Chain</li>
+            <li><strong>Registered Address:</strong> Rampur Khurd, Po Dhebwa, PS Gopalpur, Dist. Gopalganj, Bihar — 841503</li>
+            <li><strong>Email:</strong> simplifyoptionchain@gmail.com</li>
+            <li><strong>Mobile:</strong> +91 84015 20208</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -203,11 +287,15 @@ function SubscriptionPage() {
         </div>
       )}
 
+      {/* No COD Notice */}
+      <div className="sub-no-cod">
+        ⚠️ <strong>No Cash on Delivery (COD).</strong> soc.ai.in offers exclusively <strong>digital subscription services</strong>. All payments are processed online. No physical goods are delivered.
+      </div>
+
       {/* Footer links */}
       <div className="sub-policy-links">
-        Shipping &amp; Delivery: <a href="https://logictrader.in/shipping-and-delivery" target="_blank" rel="noreferrer">View Details</a>
-        &nbsp;&nbsp;|&nbsp;&nbsp;
-        Cancellation &amp; Refund: <a href="https://logictrader.in/cancellation-and-refund" target="_blank" rel="noreferrer">View Details</a>
+        Operated by: <strong>Rajan Kushwaha</strong> &nbsp;|&nbsp;
+        Registered Address: Rampur Khurd, Po Dhebwa, PS Gopalpur, Dist. Gopalganj, Bihar – 841503
       </div>
     </div>
   );
@@ -218,22 +306,22 @@ function ContactPage() {
   return (
     <div className="auth-page-wrap">
       <div className="contact-card">
-        <div className="contact-title">Get in Touch</div>
-        <div className="contact-sub">We're here to help. Reach out any time.</div>
-        <div className="contact-grid">
+        <div className="contact-title">Contact &amp; Business Details</div>
+        <div className="contact-sub">Reach out for support, queries, or payment-related issues.</div>
+        <div className="contact-grid contact-grid-3">
           <div className="contact-item">
             <div className="contact-icon">👤</div>
-            <div className="contact-label">Registered Name</div>
+            <div className="contact-label">Legal Name</div>
             <div className="contact-value">Rajan Kushwaha</div>
           </div>
           <div className="contact-item">
-            <div className="contact-icon">📍</div>
-            <div className="contact-label">Address</div>
-            <div className="contact-value">Rampur Khurd, Po Dhebwa, PS Gopalpur<br />Dist. Gopalganj, Bihar – 841503</div>
+            <div className="contact-icon">🏷️</div>
+            <div className="contact-label">Trade Name</div>
+            <div className="contact-value">soc.ai.in<br /><span style={{fontSize:'12px',color:'#888'}}>Simplify Option Chain</span></div>
           </div>
           <div className="contact-item">
             <div className="contact-icon">📞</div>
-            <div className="contact-label">Mobile</div>
+            <div className="contact-label">Mobile / WhatsApp</div>
             <div className="contact-value"><a href="tel:8401520208">+91 84015 20208</a></div>
           </div>
           <div className="contact-item">
@@ -241,10 +329,131 @@ function ContactPage() {
             <div className="contact-label">Email</div>
             <div className="contact-value"><a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a></div>
           </div>
+          <div className="contact-item contact-item-wide">
+            <div className="contact-icon">📍</div>
+            <div className="contact-label">Registered Address (Aadhaar)</div>
+            <div className="contact-value">
+              Rampur Khurd, Post Office – Dhebwa,<br />
+              Police Station – Gopalpur,<br />
+              District – Gopalganj, Bihar – 841503, India
+            </div>
+          </div>
         </div>
         <div className="contact-note">
-          Support hours: Monday – Saturday, 9:00 AM – 6:00 PM IST.<br />
-          We typically respond within 24 hours.
+          Support hours: Monday – Saturday, 9:00 AM – 6:00 PM IST. We respond within 24 hours.<br />
+          For payment/refund issues, always include your payment reference/transaction ID.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Terms & Conditions ────────────────────────────────────────────────────────
+function TermsPage() {
+  return (
+    <div className="auth-page-wrap">
+      <div className="policy-card">
+        <div className="policy-title">Terms &amp; Conditions</div>
+        <div className="policy-updated">Last updated: April 2026 | This website is operated by <strong>Rajan Kushwaha</strong> (Trade name: soc.ai.in)</div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">1. Acceptance of Terms</div>
+          <p>By accessing or using soc.ai.in, you agree to be bound by these Terms &amp; Conditions. If you do not agree, please do not use the platform. These terms apply to all visitors, users, and registered members.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">2. Platform Description</div>
+          <p>soc.ai.in is an AI-powered option chain and trading analytics platform operated by Rajan Kushwaha. We provide real-time market data tools, trading signals, journal features, and educational content for Indian equity derivatives traders.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">3. Not Financial Advice</div>
+          <p>All content, signals, analysis, and data on soc.ai.in are strictly <strong>for educational and informational purposes only</strong>. Nothing on this platform constitutes investment advice, financial advice, or a recommendation to buy or sell any security. Trading in derivatives involves substantial risk of capital loss. Users are solely responsible for all trading decisions.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">4. User Obligations</div>
+          <ul>
+            <li>You must be at least 18 years of age to register</li>
+            <li>You must provide accurate registration information</li>
+            <li>You are responsible for maintaining the confidentiality of your account credentials</li>
+            <li>You must not share your account login with any third party</li>
+            <li>You must not scrape, copy, or redistribute any platform data or signals commercially</li>
+            <li>You must report any unauthorized account access immediately</li>
+          </ul>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">5. Intellectual Property</div>
+          <p>All content, software, algorithms, UI designs, trading models, and signals on soc.ai.in are the intellectual property of Rajan Kushwaha / soc.ai.in. Unauthorized reproduction, distribution, or commercial use is strictly prohibited and may result in legal action.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">6. Subscription &amp; Payments</div>
+          <p>All subscription plans are digital services paid in advance in Indian Rupees (INR). Prices are inclusive of applicable taxes. Subscriptions are non-transferable. No Cash on Delivery (COD) is offered — all transactions are online only.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">7. Platform Availability</div>
+          <p>We aim for maximum uptime but do not guarantee uninterrupted access. Scheduled maintenance will be communicated in advance. We are not liable for losses arising from temporary unavailability.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">8. Governing Law</div>
+          <p>These terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of courts in Gopalganj, Bihar, India.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">9. Contact</div>
+          <p>Rajan Kushwaha | Rampur Khurd, Po Dhebwa, PS Gopalpur, Dist. Gopalganj, Bihar – 841503 | <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> | +91 84015 20208</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Privacy Policy ────────────────────────────────────────────────────────────
+function PrivacyPage() {
+  return (
+    <div className="auth-page-wrap">
+      <div className="policy-card">
+        <div className="policy-title">Privacy Policy</div>
+        <div className="policy-updated">Last updated: April 2026 | Operated by Rajan Kushwaha (soc.ai.in)</div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">1. Information We Collect</div>
+          <ul>
+            <li><strong>Registration data:</strong> Full name, email address, mobile number, city</li>
+            <li><strong>Usage data:</strong> Pages visited, features used, session timestamps</li>
+            <li><strong>Payment data:</strong> Transaction IDs and plan details (we do not store card/UPI details — handled by payment gateway)</li>
+            <li><strong>Technical data:</strong> IP address, browser type, device type, cookies</li>
+          </ul>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">2. How We Use Your Information</div>
+          <ul>
+            <li>To authenticate your account and provide platform access</li>
+            <li>To process subscription payments and send confirmation emails</li>
+            <li>To send OTPs and account security notifications</li>
+            <li>To improve platform features based on usage analytics</li>
+            <li>To respond to support queries</li>
+          </ul>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">3. Data Sharing</div>
+          <p>We do not sell, rent, or share your personal data with third parties for marketing purposes. Data may be shared only with: (a) payment gateway providers for transaction processing, (b) cloud service providers for hosting, and (c) law enforcement if legally required.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">4. Data Security</div>
+          <p>We use industry-standard encryption (HTTPS/TLS) for all data transmission. Passwords are stored as hashed values — never in plain text. Regular security audits are conducted.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">5. Cookies</div>
+          <p>We use session cookies for authentication. These are essential for platform functionality and are deleted when you log out. We do not use third-party advertising cookies.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">6. Data Retention</div>
+          <p>Account data is retained for the duration of your subscription plus 12 months. You may request deletion of your account and personal data by emailing us at <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a>.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">7. Your Rights</div>
+          <p>You have the right to access, correct, or request deletion of your personal data. Contact us at <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> for any data-related requests. We respond within 7 business days.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">8. Contact</div>
+          <p>Rajan Kushwaha | <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> | +91 84015 20208</p>
         </div>
       </div>
     </div>
@@ -256,89 +465,143 @@ function RefundPage() {
   return (
     <div className="auth-page-wrap">
       <div className="policy-card">
-        <div className="policy-title">Cancellation &amp; Refund Policy</div>
-        <div className="policy-updated">Last updated: April 2026</div>
+        <div className="policy-title">Return &amp; Refund Policy</div>
+        <div className="policy-updated">Last updated: April 2026 | Operated by Rajan Kushwaha (soc.ai.in)</div>
 
         <div className="policy-section">
-          <div className="policy-section-title">Overview</div>
-          <p>At SOC.ai.in (operated by Rajan Kushwaha), we are committed to delivering high-quality trading analysis tools. Please read our refund policy carefully before making a purchase.</p>
+          <div className="policy-section-title">1. Nature of Service</div>
+          <p>soc.ai.in offers exclusively digital subscription services. Since our products are intangible (platform access, data tools, AI signals), there are no physical returns. All sales are final once service access is activated.</p>
         </div>
-
         <div className="policy-section">
-          <div className="policy-section-title">Subscription Plans</div>
-          <p>All subscription plans (Weekly, Monthly, Half Yearly, and Yearly) are prepaid digital services. Once a subscription is activated and access to the platform has been granted, the plan is considered consumed and is <strong>non-refundable</strong>.</p>
+          <div className="policy-section-title">2. Standard Policy — Non-Refundable</div>
+          <p>All subscription plans (Weekly ₹111 | Monthly ₹249 | Half Yearly ₹1,434 | Yearly ₹2,749) and the Community Membership (₹9,999) are <strong>non-refundable</strong> once access is granted. Partial-period refunds are not applicable.</p>
         </div>
-
         <div className="policy-section">
-          <div className="policy-section-title">Cancellation</div>
-          <p>You may cancel your subscription at any time from your profile page. Cancellation stops future renewals but does not entitle you to a refund for the current active period. Your access will continue until the end of the paid period.</p>
-        </div>
-
-        <div className="policy-section">
-          <div className="policy-section-title">Exceptions</div>
-          <p>Refunds may be considered only in the following situations:</p>
+          <div className="policy-section-title">3. Eligible Refund Cases</div>
+          <p>Refunds are considered <strong>only</strong> in the following cases:</p>
           <ul>
-            <li>Duplicate payment made for the same plan within 24 hours</li>
-            <li>Technical failure on our end preventing access for more than 48 continuous hours</li>
-            <li>Accidental purchase of a wrong plan contacted within 2 hours of payment</li>
+            <li><strong>Duplicate payment:</strong> Same plan charged twice due to a gateway error — <em>report within 24 hours</em></li>
+            <li><strong>Extended outage:</strong> Platform inaccessible for 48+ continuous hours due to our server failure — <em>verified by our logs</em></li>
+            <li><strong>Billing error:</strong> Wrong amount charged due to a system error on our end — <em>report within 48 hours</em></li>
           </ul>
-          <p>To request a refund under any of the above, email us at <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> within 48 hours of the transaction with your payment reference number.</p>
         </div>
-
         <div className="policy-section">
-          <div className="policy-section-title">Community Membership</div>
-          <p>The one-time Community Membership fee of ₹9,999 is non-refundable once the membership is activated and community access has been granted.</p>
+          <div className="policy-section-title">4. Refund Request Process</div>
+          <p>To request a refund, email <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> with:</p>
+          <ul>
+            <li>Your registered email address</li>
+            <li>Payment transaction/reference ID</li>
+            <li>Screenshot of payment confirmation</li>
+            <li>Reason for refund request</li>
+          </ul>
+          <p>Requests must be submitted within <strong>48 hours</strong> of the transaction.</p>
         </div>
-
         <div className="policy-section">
-          <div className="policy-section-title">Processing Time</div>
-          <p>Approved refunds will be credited to the original payment method within <strong>7–10 business days</strong>, subject to your bank's processing time.</p>
+          <div className="policy-section-title">5. Refund Duration &amp; Mode</div>
+          <ul>
+            <li><strong>Review period:</strong> 3–5 business days to verify eligibility</li>
+            <li><strong>Processing time:</strong> 7–10 business days after approval</li>
+            <li><strong>Refund mode:</strong> Credited back to the original payment method (UPI, Credit/Debit Card, Net Banking)</li>
+            <li><strong>Additional bank processing:</strong> 2–5 business days depending on your bank</li>
+          </ul>
         </div>
-
         <div className="policy-section">
-          <div className="policy-section-title">Contact Us</div>
-          <p>For any refund-related queries: <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> | +91 84015 20208</p>
+          <div className="policy-section-title">6. Contact</div>
+          <p>Rajan Kushwaha | <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> | +91 84015 20208<br />
+          Rampur Khurd, Po Dhebwa, PS Gopalpur, Dist. Gopalganj, Bihar – 841503</p>
         </div>
       </div>
     </div>
   );
 }
 
-// ── Shipping Page ─────────────────────────────────────────────────────────────
+// ── Cancellation Policy ───────────────────────────────────────────────────────
+function CancellationPage() {
+  return (
+    <div className="auth-page-wrap">
+      <div className="policy-card">
+        <div className="policy-title">Cancellation Policy</div>
+        <div className="policy-updated">Last updated: April 2026 | Operated by Rajan Kushwaha (soc.ai.in)</div>
+
+        <div className="policy-section">
+          <div className="policy-section-title">1. Subscription Cancellation</div>
+          <p>soc.ai.in subscriptions are <strong>non-auto-renewing</strong>. Each plan expires after its paid duration (7 / 30 / 180 / 365 days). There is no automatic recurring charge — you manually repurchase when needed.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">2. How to Cancel</div>
+          <p>Since subscriptions do not auto-renew, no formal cancellation action is needed. Simply do not renew when your plan expires. If you wish to deactivate your account entirely, email us at <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a>.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">3. Cancellation Duration &amp; Access</div>
+          <ul>
+            <li><strong>Weekly plan (7 days):</strong> Access continues until day 7 from activation</li>
+            <li><strong>Monthly plan (30 days):</strong> Access continues until day 30 from activation</li>
+            <li><strong>Half Yearly plan (180 days):</strong> Access continues until day 180 from activation</li>
+            <li><strong>Yearly plan (365 days):</strong> Access continues until day 365 from activation</li>
+            <li><strong>Community Membership (Lifetime):</strong> Permanent — no expiry or cancellation once activated</li>
+          </ul>
+          <p>Cancellation or non-renewal does <strong>not</strong> entitle you to a prorated refund for unused days.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">4. Account Deactivation</div>
+          <p>If you request complete account deletion, all your data (trade journal, settings, history) will be permanently deleted within <strong>7 business days</strong> of the confirmed request. This action is irreversible.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">5. Contact</div>
+          <p>Rajan Kushwaha | <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> | +91 84015 20208</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Shipping Policy ───────────────────────────────────────────────────────────
 function ShippingPage() {
   return (
     <div className="auth-page-wrap">
       <div className="policy-card">
         <div className="policy-title">Shipping &amp; Delivery Policy</div>
-        <div className="policy-updated">Last updated: April 2026</div>
+        <div className="policy-updated">Last updated: April 2026 | Operated by Rajan Kushwaha (soc.ai.in)</div>
 
         <div className="policy-section">
-          <div className="policy-section-title">Digital Services Only</div>
-          <p>SOC.ai.in is a fully digital platform. All products and services offered — including subscription plans and community membership — are delivered electronically. <strong>No physical goods are shipped.</strong></p>
+          <div className="policy-section-title">1. Digital Product — No Physical Shipping</div>
+          <p>soc.ai.in is a <strong>100% digital platform</strong>. We do not sell or ship any physical products. All our offerings — subscription plans, community membership, signals, and tools — are delivered electronically over the internet.</p>
+          <p><strong>Cash on Delivery (COD) is not available and is not applicable</strong> as no physical delivery takes place.</p>
         </div>
-
         <div className="policy-section">
-          <div className="policy-section-title">Instant Access</div>
-          <p>Upon successful payment verification, your account is activated immediately. You will receive a confirmation email with your login credentials and plan details within a few minutes of purchase.</p>
-        </div>
-
-        <div className="policy-section">
-          <div className="policy-section-title">Delivery Method</div>
+          <div className="policy-section-title">2. Delivery Method</div>
           <ul>
-            <li><strong>Subscription Plans:</strong> Access granted instantly via your registered email and login credentials</li>
-            <li><strong>Community Membership:</strong> Invitation link sent to your registered email within 1 hour of payment confirmation</li>
-            <li><strong>OTP &amp; Verification Emails:</strong> Delivered within 2–5 minutes (check spam folder if not received)</li>
+            <li><strong>Subscription Plans:</strong> Instant platform access via your registered login after payment verification</li>
+            <li><strong>Community Membership:</strong> Invitation and access link sent to registered email within <strong>1 hour</strong> of payment</li>
+            <li><strong>OTP &amp; Verification Emails:</strong> Delivered within <strong>2–5 minutes</strong> (check spam/junk folder)</li>
+            <li><strong>Password Reset Links:</strong> Delivered within <strong>2–5 minutes</strong></li>
           </ul>
         </div>
-
         <div className="policy-section">
-          <div className="policy-section-title">Delays</div>
-          <p>In rare cases, payment gateway delays may affect activation. If your account is not activated within 2 hours of a confirmed payment, please contact us immediately at <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> with your payment receipt.</p>
+          <div className="policy-section-title">3. Delivery Duration</div>
+          <ul>
+            <li>Standard activation: <strong>Immediate to 15 minutes</strong> after confirmed payment</li>
+            <li>Maximum activation window: <strong>2 hours</strong> in exceptional gateway delay cases</li>
+            <li>If not activated within 2 hours: Contact us immediately with payment proof</li>
+          </ul>
         </div>
-
         <div className="policy-section">
-          <div className="policy-section-title">Contact</div>
-          <p>For delivery-related issues: <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> | +91 84015 20208</p>
+          <div className="policy-section-title">4. Service Availability</div>
+          <p>The platform targets <strong>99.9% uptime</strong> during Indian market hours (9:00 AM – 4:00 PM IST, Monday–Friday). Scheduled maintenance is performed outside market hours with advance notice.</p>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">5. System Requirements</div>
+          <ul>
+            <li>Stable internet connection (minimum 1 Mbps)</li>
+            <li>Modern web browser (Chrome, Firefox, Edge, Safari — latest versions)</li>
+            <li>JavaScript must be enabled</li>
+            <li>Minimum screen: 320px (mobile) / 1024px (desktop recommended)</li>
+          </ul>
+        </div>
+        <div className="policy-section">
+          <div className="policy-section-title">6. Contact for Delivery Issues</div>
+          <p>Rajan Kushwaha | <a href="mailto:simplifyoptionchain@gmail.com">simplifyoptionchain@gmail.com</a> | +91 84015 20208<br />
+          Response within 24 hours during business days (Mon–Sat, 9 AM – 6 PM IST)</p>
         </div>
       </div>
     </div>
@@ -677,9 +940,13 @@ const AuthPage = () => {
     <div className="auth-root">
       <NavBar activePage={navPage} setPage={setNavPage} />
 
+      {navPage === 'about'        && <AboutPage />}
       {navPage === 'subscription' && <SubscriptionPage />}
       {navPage === 'contact'      && <ContactPage />}
+      {navPage === 'terms'        && <TermsPage />}
+      {navPage === 'privacy'      && <PrivacyPage />}
       {navPage === 'refund'       && <RefundPage />}
+      {navPage === 'cancellation' && <CancellationPage />}
       {navPage === 'shipping'     && <ShippingPage />}
 
       {navPage === 'home' && (
