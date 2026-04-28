@@ -666,6 +666,9 @@ const AuthPage = () => {
       clearTimeout(inactiveTimer);
       inactiveTimer = setTimeout(async () => {
         await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+        localStorage.removeItem('soc_auth_state');
+        localStorage.removeItem('soc_bootstrap');
+        localStorage.removeItem('soc_symbols');
         window.location.href = '/?reason=timeout';
       }, 5 * 60 * 1000);
     };

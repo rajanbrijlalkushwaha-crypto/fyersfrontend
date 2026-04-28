@@ -13,7 +13,9 @@ export default function Topbar() {
     } catch (err) {
       console.error('Logout error:', err);
     }
-    // replace() removes the app from history so back button can't return to it
+    localStorage.removeItem('soc_auth_state');
+    localStorage.removeItem('soc_bootstrap');
+    localStorage.removeItem('soc_symbols');
     window.location.replace('/');
   };
 
