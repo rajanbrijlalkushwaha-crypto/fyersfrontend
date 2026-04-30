@@ -71,7 +71,8 @@ function LoginForm({ onLogin }) {
   );
 }
 
-const INTERVAL_OPTIONS = [1, 2, 3, 5, 10, 15];
+const INTERVAL_OPTIONS = [1, 2, 3, 5, 10, 15, 20, 25, 40, 50, 60, 180, 300];
+const fmtInterval = s => s >= 60 ? `${s / 60} min` : `${s}s`;
 
 // ─── Status Card ──────────────────────────────────────────────────────────────
 function StatusCard({ status, onStart, onStop, loading }) {
@@ -106,7 +107,7 @@ function StatusCard({ status, onStart, onStop, loading }) {
             }}
           >
             {INTERVAL_OPTIONS.map(s => (
-              <option key={s} value={s}>{s}s</option>
+              <option key={s} value={s}>{fmtInterval(s)}</option>
             ))}
           </select>
         </div>

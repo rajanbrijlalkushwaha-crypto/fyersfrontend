@@ -306,7 +306,9 @@ function SystemTab({ adminToken }) {
               disabled={actionLoading}
               style={{ padding:'3px 7px', borderRadius:'4px', border:'1px solid #ccc', fontSize:'13px', background:'#fff' }}
             >
-              {[1,2,3,5,10,15].map(s => <option key={s} value={s}>{s}s</option>)}
+              {[1,2,3,5,10,15,20,25,40,50,60,180,300].map(s => (
+                <option key={s} value={s}>{s >= 60 ? `${s/60} min` : `${s}s`}</option>
+              ))}
             </select>
             <span style={{ fontSize:'11px', color:'#999' }}>fetch every {fetchInterval}s</span>
           </div>
