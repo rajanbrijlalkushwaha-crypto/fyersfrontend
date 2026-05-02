@@ -35,6 +35,7 @@ const AIStockPanel       = lazy(() => import('./components/AIStock/AIStockPanel'
 const JoinMeetPage       = lazy(() => import('./components/JoinMeet/JoinMeetPage'));
 const CryptoOptionChain    = lazy(() => import('./components/Crypto/CryptoOptionChain'));
 const CryptoOIChartModal   = lazy(() => import('./components/Crypto/CryptoOIChartModal'));
+const HeatMap              = lazy(() => import('./components/HeatMap/HeatMap'));
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
@@ -511,6 +512,7 @@ function AppContent() {
       {renderMain()}
       <NotificationPanel />
       <NotifPopup />
+      <HeatMap />
     </Suspense>
   );
 }

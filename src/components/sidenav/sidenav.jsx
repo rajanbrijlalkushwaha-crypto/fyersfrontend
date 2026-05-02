@@ -43,7 +43,8 @@ export default function SideNav() {
   const goTeam       = () => navigate('/team',         [...RESET, { type: 'SET_TEAM_PAGE',       payload: true  }]);
   const goCrypto     = () => navigate('/crypto',        [...RESET, { type: 'SET_CRYPTO_PAGE',     payload: true  }]);
 
-  const openNotif = () => dispatch({ type: 'SET_NOTIF_PANEL', payload: true });
+  const openNotif   = () => dispatch({ type: 'SET_NOTIF_PANEL', payload: true });
+  const toggleHeatmap = () => dispatch({ type: 'SET_HEATMAP', payload: !state.heatmapOpen });
 
   // ── Active state ─────────────────────────────────────────
   const isAITrain      = state.aiTrainActive;
@@ -73,9 +74,10 @@ export default function SideNav() {
 
   const navItems = [
     { section: 'Main', items: [
-      { icon: '🏠', label: 'Dashboard',         tooltip: 'Dashboard',         active: isDashboard,  onClick: goDashboard  },
-      { icon: '📊', label: 'Live Option Chain',  tooltip: 'Live Option Chain',  active: isLive,       onClick: goLive       },
-      { icon: '📅', label: 'Historical Data',    tooltip: 'Historical Data',   active: isHistorical, onClick: goHistorical },
+      { icon: '🏠', label: 'Dashboard',         tooltip: 'Dashboard',         active: isDashboard,         onClick: goDashboard    },
+      { icon: '📊', label: 'Live Option Chain',  tooltip: 'Live Option Chain',  active: isLive,              onClick: goLive         },
+      { icon: '📅', label: 'Historical Data',    tooltip: 'Historical Data',   active: isHistorical,        onClick: goHistorical   },
+      { icon: '🔥', label: 'Market Heatmap',     tooltip: 'Market Heatmap',    active: state.heatmapOpen,   onClick: toggleHeatmap  },
     ]},
     { section: 'Crypto', items: [
       { icon: '🪙', label: 'Crypto Options', tooltip: 'Crypto Option Chain', active: isCrypto, onClick: goCrypto },

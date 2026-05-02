@@ -140,6 +140,9 @@ const initialState = {
   splitScreenActive: true,
   splitScreenMode: 'split', // 'off' | 'split' | 'chart' | 'chain'
 
+  // Heatmap panel
+  heatmapOpen: false,
+
   // Loading
   loading: true,
   signalsLoading: true,  // true until first signal batch arrives
@@ -288,6 +291,8 @@ function appReducer(state, action) {
       return action.payload
         ? { ...state, cryptoPageActive: true, joinMeetActive: false, aiStockActive: false, aiTrainActive: false, teamPageActive: false, journalActive: false, profileActive: false, adminPanelActive: false, subscriptionActive: false, holidayListActive: false, supportActive: false, aiPageActive: false, indexPageActive: false }
         : { ...state, cryptoPageActive: false };
+    case 'SET_HEATMAP':
+      return { ...state, heatmapOpen: action.payload };
     case 'SET_NOTIF_PANEL':
       return { ...state, notifPanelOpen: action.payload };
     case 'SET_NOTIF_UNREAD':
