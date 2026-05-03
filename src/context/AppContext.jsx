@@ -127,8 +127,8 @@ const initialState = {
   showInLakh: false,
 
   // VOL/OI Change tracker
-  volOiCngData: {},      // { 5: {strike: {callVol,callOI,putVol,putOI}}, 15: {...}, 30: {...} }
-  volOiCngWindow: 5,     // active time window: 5 | 15 | 30
+  volOiCngData: {},      // { 1:{}, 3:{}, 5:{}, 15:{}, 30:{} } each keyed by strike string
+  volOiCngWindow: 1,     // active time window: 1 | 3 | 5 | 15 | 30
 
   // Strong S/R reversal levels (drawn at reversal price, not strike)
   strongSupport: null,       // reversal price: 2+ maxes on put side
@@ -349,7 +349,7 @@ function appReducer(state, action) {
     case 'SET_VOLOICHNG_DATA':
       return { ...state, volOiCngData: action.payload };
     case 'CYCLE_VOLOICHNG_WINDOW': {
-      const windows = [5, 15, 30];
+      const windows = [1, 3, 5, 15, 30];
       const next = windows[(windows.indexOf(state.volOiCngWindow) + 1) % windows.length];
       return { ...state, volOiCngWindow: next };
     }

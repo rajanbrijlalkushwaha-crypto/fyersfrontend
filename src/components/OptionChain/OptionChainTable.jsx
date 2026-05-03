@@ -495,7 +495,7 @@ export default function OptionChainTable() {
               className="call-sub data-col-cell voichng-header"
               style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
               onClick={() => dispatch({ type: 'CYCLE_VOLOICHNG_WINDOW' })}
-              title="Click to cycle 5m → 15m → 30m"
+              title="Click to cycle 1m → 3m → 5m → 15m → 30m"
             >VOL/OI<br/>CHNG {volOiCngWindow}m</th>
           )}
           <th className="call-sub data-col-cell slevel-header">LTP Level</th>
@@ -525,7 +525,7 @@ export default function OptionChainTable() {
               className="put-sub data-col-cell voichng-header"
               style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
               onClick={() => dispatch({ type: 'CYCLE_VOLOICHNG_WINDOW' })}
-              title="Click to cycle 5m → 15m → 30m"
+              title="Click to cycle 1m → 3m → 5m → 15m → 30m"
             >VOL/OI<br/>CHNG {volOiCngWindow}m</th>
           )}
           {ltpDisplayActive && <th className="put-sub ltp-col-cell ltp-col">LTP/Chng</th>}
