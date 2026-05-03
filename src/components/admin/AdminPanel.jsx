@@ -187,9 +187,11 @@ function SystemTab({ adminToken }) {
   // Instruments state
   const [masterList, setMasterList]     = useState([]);
   const [activeKeys, setActiveKeys]     = useState(new Set());
+  const [dbSymbols, setDbSymbols]       = useState(new Set()); // symbols with data in MongoDB
   const [instrMsg, setInstrMsg]         = useState('');
   const [instrLoading, setInstrLoading] = useState(false);
   const [search, setSearch]             = useState('');
+  const [checkedKeys, setCheckedKeys]   = useState(new Set()); // checkbox selection
 
   // Candle download state
   const [candleMsg, setCandleMsg]       = useState('');
@@ -217,12 +219,14 @@ function SystemTab({ adminToken }) {
 
   const fetchInstruments = useCallback(async () => {
     try {
-      const [masterRes, activeRes] = await Promise.all([
+      const [masterRes, activeRes, dbRes] = await Promise.all([
         ADMIN_API('/api/instruments/master', adminToken),
         ADMIN_API('/api/instruments/active', adminToken),
+        ADMIN_API('/api/instruments/in-db', adminToken),
       ]);
       if (masterRes.success) setMasterList(masterRes.all || []);
       if (activeRes.success) setActiveKeys(new Set(activeRes.instruments || []));
+      if (dbRes.success)     setDbSymbols(new Set(dbRes.symbols || []));
     } catch {}
   }, [adminToken]);
 
@@ -233,6 +237,19 @@ function SystemTab({ adminToken }) {
     return () => clearInterval(id);
   }, [fetchStatus, fetchInstruments]);
 
+  // Auto-activate only symbols that have data in DB
+  const autoActivateFromDb = () => {
+    const dbKeys = new Set(
+      masterList
+        .filter(i => dbSymbols.has(i.symbol))
+        .map(i => i.key)
+    );
+    setActiveKeys(dbKeys);
+    setCheckedKeys(new Set());
+    setInstrMsg(`✅ Auto-set ${dbKeys.size} symbols that have DB data as active`);
+    setTimeout(() => setInstrMsg(''), 4000);
+  };
+
   const toggleInstrument = (key) => {
     setActiveKeys(prev => {
       const next = new Set(prev);
@@ -240,6 +257,21 @@ function SystemTab({ adminToken }) {
       return next;
     });
   };
+
+  // Checkbox helpers
+  const toggleCheck = (key) => setCheckedKeys(prev => {
+    const next = new Set(prev); next.has(key) ? next.delete(key) : next.add(key); return next;
+  });
+  const toggleCheckAll = (keys) => {
+    const allChecked = keys.every(k => checkedKeys.has(k));
+    setCheckedKeys(prev => {
+      const next = new Set(prev);
+      keys.forEach(k => allChecked ? next.delete(k) : next.add(k));
+      return next;
+    });
+  };
+  const activateChecked  = () => { setActiveKeys(prev => { const n=new Set(prev); checkedKeys.forEach(k=>n.add(k)); return n; }); setCheckedKeys(new Set()); };
+  const deactivateChecked= () => { setActiveKeys(prev => { const n=new Set(prev); checkedKeys.forEach(k=>n.delete(k)); return n; }); setCheckedKeys(new Set()); };
 
   const saveInstruments = async () => {
     setInstrLoading(true);
@@ -249,31 +281,36 @@ function SystemTab({ adminToken }) {
         method: 'POST',
         body: { instruments: [...activeKeys] },
       });
-      setInstrMsg(d.success ? `✅ Saved ${[...activeKeys].length} instruments` : '❌ ' + d.message);
+      if (d.success) {
+        setInstrMsg(`✅ Saved — ${[...activeKeys].length} active instruments`);
+        await fetchInstruments(); // re-sync from server to confirm
+      } else {
+        setInstrMsg('❌ ' + (d.message || 'Save failed'));
+      }
     } catch { setInstrMsg('❌ Error saving'); }
     setInstrLoading(false);
   };
 
-  // Instruments list: active first, then Index → Futures → Stock A-Z, live search
+  // Instruments list: active first, then Index → Futures → Currency → Stock A-Z, live search
   const filtered = useMemo(() => {
-    const CATEGORY_ORDER = { Index: 0, Futures: 1, Stock: 2, Commodity: 3 };
-    const q = search.toLowerCase();
+    const CATEGORY_ORDER = { Index: 0, Currency: 1, Futures: 2, Stock: 3, Commodity: 4 };
+    const q = search.toLowerCase().trim();
     return masterList
       .filter(i => i.hasOptionChain !== false)
       .filter(i => !q ||
         i.symbol?.toLowerCase().includes(q) ||
-        i.name?.toLowerCase().includes(q)
+        i.name?.toLowerCase().includes(q) ||
+        i.category?.toLowerCase().includes(q) ||
+        i.segment?.toLowerCase().includes(q) ||
+        i.sector?.toLowerCase().includes(q)
       )
       .sort((a, b) => {
-        // Active instruments first
         const aActive = activeKeys.has(a.key) ? 0 : 1;
         const bActive = activeKeys.has(b.key) ? 0 : 1;
         if (aActive !== bActive) return aActive - bActive;
-        // Category order: Index → Futures → Stock
         const ac = CATEGORY_ORDER[a.category] ?? 99;
         const bc = CATEGORY_ORDER[b.category] ?? 99;
         if (ac !== bc) return ac - bc;
-        // A-Z within category
         return (a.symbol || '').localeCompare(b.symbol || '');
       });
   }, [masterList, activeKeys, search]);
@@ -388,19 +425,34 @@ function SystemTab({ adminToken }) {
           <span className="admp-tab-title">
             Instruments
             <span className="admp-count" style={{ marginLeft: 8 }}>{activeKeys.size} active</span>
+            {dbSymbols.size > 0 && <span style={{ marginLeft: 6, fontSize: 11, color: '#888' }}>· {dbSymbols.size} in DB</span>}
           </span>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <input
               className="admp-input"
-              placeholder="Search symbol / name..."
+              placeholder="Search symbol / name / category..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ width: 200 }}
+              style={{ width: 220 }}
             />
+            {checkedKeys.size > 0 && (
+              <>
+                <button className="admp-btn admp-btn-success" style={{ width: 'auto', padding: '4px 10px', fontSize: 12 }} onClick={activateChecked}>
+                  ✓ Activate {checkedKeys.size}
+                </button>
+                <button className="admp-btn admp-btn-warn" style={{ width: 'auto', padding: '4px 10px', fontSize: 12 }} onClick={deactivateChecked}>
+                  ✕ Deactivate {checkedKeys.size}
+                </button>
+              </>
+            )}
+            <button className="admp-btn admp-btn-outline" style={{ width: 'auto', padding: '4px 10px', fontSize: 12 }} onClick={autoActivateFromDb}
+              title="Set active = only symbols that have data in MongoDB">
+              🗄 Auto from DB
+            </button>
             <button
               className="admp-btn admp-btn-success"
               onClick={saveInstruments}
-              disabled={instrLoading || activeKeys.size === 0}
+              disabled={instrLoading}
             >
               {instrLoading ? 'Saving...' : '💾 Save & Apply'}
             </button>
@@ -411,31 +463,49 @@ function SystemTab({ adminToken }) {
           <table className="admp-table">
             <thead>
               <tr>
+                <th style={{ width: 32 }}>
+                  <input type="checkbox"
+                    checked={filtered.length > 0 && filtered.every(i => checkedKeys.has(i.key))}
+                    onChange={() => toggleCheckAll(filtered.map(i => i.key))}
+                  />
+                </th>
                 <th>#</th>
                 <th>Symbol</th>
                 <th>Name</th>
-                <th>Fyers Symbol</th>
-                <th>Segment</th>
+                <th>Category</th>
+                <th>In DB</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((inst, i) => {
-                const active = activeKeys.has(inst.key);
-                const fyersSym = FYERS_SYMBOL_MAP[inst.key] || inst.key;
+                const active  = activeKeys.has(inst.key);
+                const inDb    = dbSymbols.has(inst.symbol);
+                const checked = checkedKeys.has(inst.key);
                 return (
-                  <tr key={inst.key}>
+                  <tr key={inst.key} style={{ background: checked ? '#f0f7ff' : undefined }}>
+                    <td>
+                      <input type="checkbox" checked={checked} onChange={() => toggleCheck(inst.key)} />
+                    </td>
                     <td style={{ color: '#999', fontSize: 12 }}>{i + 1}</td>
                     <td><b>{inst.symbol}</b></td>
                     <td style={{ fontSize: 12 }}>{inst.name}</td>
-                    <td style={{ fontSize: 11, color: '#1a56db', fontFamily: 'monospace', fontWeight: 600 }}>{fyersSym}</td>
-                    <td style={{ fontSize: 11, color: '#888' }}>{inst.segment || inst.category}</td>
+                    <td style={{ fontSize: 11, color: '#888' }}>{inst.category}</td>
+                    <td>
+                      <span style={{
+                        padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+                        background: inDb ? '#e8f5e9' : '#f5f5f5',
+                        color: inDb ? '#2e7d32' : '#aaa',
+                      }}>
+                        {inDb ? '✓ Data' : '—'}
+                      </span>
+                    </td>
                     <td>
                       <span style={{
                         padding: '2px 10px', borderRadius: 12, fontSize: 11, fontWeight: 700,
-                        background: active ? '#e8f5e9' : '#ffeee8',
-                        color: active ? '#2e7d32' : '#c62828',
+                        background: active ? '#e3f2fd' : '#ffeee8',
+                        color: active ? '#1565c0' : '#c62828',
                       }}>
                         {active ? 'Active' : 'Inactive'}
                       </span>
@@ -444,7 +514,7 @@ function SystemTab({ adminToken }) {
                       <button
                         onClick={() => toggleInstrument(inst.key)}
                         style={{
-                          padding: '4px 14px', borderRadius: 6, cursor: 'pointer',
+                          padding: '4px 12px', borderRadius: 6, cursor: 'pointer',
                           border: `1.5px solid ${active ? '#c62828' : '#2e7d32'}`,
                           background: active ? '#ffeee8' : '#e8f5e9',
                           color: active ? '#c62828' : '#2e7d32',
@@ -457,6 +527,9 @@ function SystemTab({ adminToken }) {
                   </tr>
                 );
               })}
+              {filtered.length === 0 && (
+                <tr><td colSpan={8} style={{ textAlign: 'center', color: '#aaa', padding: 20 }}>No symbols match "{search}"</td></tr>
+              )}
             </tbody>
           </table>
         </div>
