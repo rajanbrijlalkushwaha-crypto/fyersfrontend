@@ -293,6 +293,7 @@ export default function OptionChainTable() {
       const params = new URLSearchParams();
       if (currentExpiry && currentExpiry !== '--') params.set('expiry', currentExpiry);
       if (currentDataDate && currentDataDate !== '--') params.set('date', currentDataDate);
+      if (currentTime && currentTime !== '--') params.set('time', currentTime);
       fetch(`/api/voloichng/${encodeURIComponent(currentSymbol)}?${params}`)
         .then(r => r.ok ? r.json() : {})
         .then(d => dispatch({ type: 'SET_VOLOICHNG_DATA', payload: d }))
@@ -301,7 +302,7 @@ export default function OptionChainTable() {
     fetch_();
     volOiFetchRef.current = setInterval(fetch_, 15000);
     return () => clearInterval(volOiFetchRef.current);
-  }, [currentSymbol, currentExpiry, currentDataDate]);
+  }, [currentSymbol, currentExpiry, currentDataDate, currentTime]);
 
   // Active window data (keyed by strike string)
   const volOiWindowData = volOiCngData[volOiCngWindow] || {};

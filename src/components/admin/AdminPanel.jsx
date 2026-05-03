@@ -12,6 +12,7 @@ const FYERS_SYMBOL_MAP = {
   'NSE_INDEX|NIFTY MID SELECT':         'NSE:MIDCPNIFTY-INDEX',
   'BSE_INDEX|SENSEX':                   'BSE:SENSEX-INDEX',
   'BSE_INDEX|BANKEX':                   'BSE:BANKEX-INDEX',
+  'NSE_CURRENCY|USDINR':                'NSE:USDINR-INDEX',
 };
 
 function useBodyScroll() {
@@ -190,6 +191,20 @@ function SystemTab({ adminToken }) {
   const [instrLoading, setInstrLoading] = useState(false);
   const [search, setSearch]             = useState('');
 
+  // Candle download state
+  const [candleMsg, setCandleMsg]       = useState('');
+  const [candleLoading, setCandleLoading] = useState(false);
+  const [candleResolution, setCandleResolution] = useState('1');
+
+  const downloadCandles = async () => {
+    setCandleLoading(true); setCandleMsg('');
+    try {
+      const d = await ADMIN_API(`/api/admin/candles/download?resolution=${candleResolution}`, adminToken);
+      setCandleMsg(d.message || (d.success ? 'Started!' : 'Failed'));
+    } catch { setCandleMsg('Error starting download'); }
+    finally { setCandleLoading(false); setTimeout(() => setCandleMsg(''), 8000); }
+  };
+
   const fetchStatus = useCallback(async () => {
     try {
       const d = await ADMIN_API('/api/admin/status', adminToken);
@@ -338,6 +353,34 @@ function SystemTab({ adminToken }) {
 
       {/* ── Fyers API Keys Manager ── */}
       <FyersAppsPanel adminToken={adminToken} />
+
+      {/* ── Candle Data Download ── */}
+      <div style={{ marginTop: 20, padding: '14px 18px', background: '#f8f9fa', border: '1px solid #e0e0e0', borderRadius: 8 }}>
+        <div className="admp-tab-header" style={{ marginBottom: 10 }}>
+          <span className="admp-tab-title">Candle Data (OHLCV)</span>
+          <span style={{ fontSize: 11, color: '#888' }}>Downloads Fyers historical candles for all expiries → MongoDB</span>
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <label style={{ fontSize: 12, color: '#555' }}>Resolution:
+            <select value={candleResolution} onChange={e => setCandleResolution(e.target.value)}
+              style={{ marginLeft: 6, padding: '3px 8px', borderRadius: 4, border: '1px solid #ccc', fontSize: 12 }}>
+              <option value="1">1 min</option>
+              <option value="5">5 min</option>
+              <option value="15">15 min</option>
+              <option value="60">1 hour</option>
+              <option value="1D">Daily</option>
+            </select>
+          </label>
+          <button className="admp-btn admp-btn-primary" style={{ width: 'auto' }}
+            disabled={candleLoading} onClick={downloadCandles}>
+            {candleLoading ? 'Starting…' : '📥 Download All Expiry Candles'}
+          </button>
+          {candleMsg && <span style={{ fontSize: 12, color: '#555' }}>{candleMsg}</span>}
+        </div>
+        <div style={{ fontSize: 11, color: '#999', marginTop: 6 }}>
+          Downloads candle data from expiry start to end date for every symbol+expiry in DB. Watch server logs for progress.
+        </div>
+      </div>
 
       {/* ── Instruments Manager ── */}
       <div style={{ marginTop: 28 }}>
